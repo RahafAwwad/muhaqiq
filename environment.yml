@@ -1,0 +1,6 @@
+name: muhaqiq
+channels:
+  - defaults
+dependencies:
+  - python
+prefix: /home/ksa/anaconda3/envs/muhaqiq
