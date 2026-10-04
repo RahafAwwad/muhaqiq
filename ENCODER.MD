@@ -1,0 +1,1 @@
+Overlapping annotations are flattened to the outer span for the detector (BIO allows one label per token); the nested detail is preserved in status/correction for the restorer. Span edges are snapped outward to token boundaries, so a clitic (و/ف) attached to the first word is included.
