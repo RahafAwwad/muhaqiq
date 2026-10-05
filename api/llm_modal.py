@@ -9,7 +9,8 @@ import modal
 BASE = "ALLaM-AI/ALLaM-7B-Instruct-preview"
 ADAPTER = "muhaqiq/muhaqiq-allam-restorer"
 image = (modal.Image.debian_slim(python_version="3.11")
-         .pip_install("torch", "transformers", "peft", "bitsandbytes", "accelerate", "huggingface_hub", "fastapi[standard]"))
+         .pip_install("torch", "transformers", "peft", "bitsandbytes", "accelerate", "huggingface_hub", "fastapi[standard]",
+                      "sentencepiece", "tiktoken", "protobuf"))
 app = modal.App("muhaqiq-llm", image=image)
 
 PROMPT = ("النص التالي اقتباس من {kind} كما ورد في إجابة روبوت دردشة، وقد يكون محرَّفًا أو ناقصًا. "
