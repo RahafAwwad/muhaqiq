@@ -34,11 +34,12 @@ class LLM:
 
     def generate(self, prompt, adapter):
         import torch
-        ids = self.tok.apply_chat_template([{"role": "user", "content": prompt}], add_generation_prompt=True, return_tensors="pt").to("cuda")
+        text = self.tok.apply_chat_template([{"role": "user", "content": prompt}], add_generation_prompt=True, tokenize=False)
+        enc = self.tok(text, return_tensors="pt", add_special_tokens=False).to("cuda")     # template already added BOS
         ctx = self.model.disable_adapter() if (self.has_adapter and not adapter) else torch.no_grad()
         with ctx, torch.no_grad():
-            out = self.model.generate(ids, max_new_tokens=200, do_sample=False)
-        return self.tok.decode(out[0][ids.shape[1]:], skip_special_tokens=True).strip()
+            out = self.model.generate(**enc, max_new_tokens=200, do_sample=False)
+        return self.tok.decode(out[0][enc["input_ids"].shape[1]:], skip_special_tokens=True).strip()
 
     @modal.asgi_app()
     def web(self):

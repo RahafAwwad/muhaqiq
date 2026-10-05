@@ -8,6 +8,7 @@ from normalize import norm
 import verify as V
 
 LLM = os.environ.get("LLM_URL", "").rstrip("/")
+RELATED = 60                  # min window ratio between the quote and a proposed source for it to be shown as a candidate
 
 def propose_a(span, label):
     if not LLM or "placeholder" in LLM: return ""
@@ -44,11 +45,13 @@ def rescue(span, label, searched):
     texts = {norm(s.get("simple") or s["text"]) for s in found.values()}
     src = next(iter(found.values()))
     window_score, window = V.best_window(span, src.get("simple") or src["text"])
-    if len(found) == 2 and len(texts) == 1 or (len(found) == 1 and window_score >= V.NEAR):
+    if (len(found) == 2 and len(texts) == 1) or (len(found) == 1 and window_score >= V.NEAR):
         return {"verdict": "لفظ مختلف", "score": round(window_score, 1), "source": src, "canonical": window,
                 "diff": V.diff_words(span, window), "via": list(found), "searched": searched}
-    return {"verdict": "يحتاج مراجعة", "score": round(window_score, 1), "candidates": [s.get("ref") or s.get("المصدر") for s in found.values()],
-            "closest": src, "searched": searched}
+    if window_score >= RELATED:                       # a real text that resembles the quote: worth a human look
+        return {"verdict": "يحتاج مراجعة", "score": round(window_score, 1), "candidates": [s.get("ref") or s.get("المصدر") for s in found.values()],
+                "closest": src, "closest_window": window, "via": list(found), "searched": searched}
+    return None                                       # the model proposed something unrelated: ignore it
 
 def verify_full(span, label):
     r = V.verify(span, label)

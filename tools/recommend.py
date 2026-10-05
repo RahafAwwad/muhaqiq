@@ -3,7 +3,7 @@
 Search is restricted to the organisers' approved sites (Tavily `include_domains`): https://docs.tavily.com/documentation/api-reference/endpoint/search
 Level classification: ALLaM via the Modal /chat route (LLM_URL). Env: TAVILY_KEY, LLM_URL.
 """
-import os, requests
+import os, re, requests
 
 SITES = ["islamqa.info", "binbaz.org.sa", "binothaimeen.net", "dorar.net", "dawa.center", "islamic-content.com",
          "hadeethenc.com", "islamweb.net", "tafsir.net"]
@@ -13,13 +13,21 @@ LEVELS = ("أ: معلومات أصلية مستقرة (القرآن، الأحا
           "د: فتوى أو حالة شخصية (حكم على واقعة لشخص بعينه، صحة عقد أو عبادة لشخص، نزاع أسري، مسألة قانونية أو طبية)")
 REFER = "هذه حالة شخصية تحتاج فتوى من جهة مؤهلة؛ لا نقدم حكمًا، ويمكنك سؤال أهل العلم عبر المواقع المعتمدة."
 
+PERSONAL = ["أنا ", "زوجي", "زوجتي", "طلقني", "طلقت", "هل يجوز لي", "هل علي", "حالتي", "في بلدي", "أعيش في", "أنا في",
+            "ابني", "ابنتي", "أمي", "أبي", "أخي", "عقدت", "اشتريت", "وقعت", "فعلت", "نذرت", "حلفت", "حكمي", "ماذا أفعل"]
+
 def level(question):
+    """Content level أ/ب/ج/د. A personal-case marker decides د by rule; otherwise ALLaM picks among the four."""
+    if any(m in question for m in PERSONAL): return "د"
     url = os.environ.get("LLM_URL", "").rstrip("/")
-    if not url: return "ب"
-    r = requests.post(f"{url}/chat", timeout=120, json={"prompt":
-        f"صنّف السؤال التالي إلى أحد المستويات وأجب بحرف واحد فقط (أ أو ب أو ج أو د).\n{LEVELS}\nالسؤال: {question}\nالحرف:"}).json()
-    c = (r.get("text") or "").strip()[:1]
-    return c if c in "أبجد" else "ب"
+    if not url or "placeholder" in url: return "ب"
+    try:
+        r = requests.post(f"{url}/chat", timeout=120, json={"prompt":
+            f"صنّف السؤال التالي إلى أحد المستويات. أجب بحرف واحد فقط من غير شرح: أ أو ب أو ج أو د.\n{LEVELS}\nالسؤال: {question}"}).json()
+        m = re.search(r"(?<![\w])([أبجد])(?![\w])", r.get("text") or "")
+        return m.group(1) if m else "ب"
+    except Exception as e:
+        print("level model unavailable:", e); return "ب"
 
 def search(question, n=3, sites=SITES):
     r = requests.post("https://api.tavily.com/search", timeout=30, json={
