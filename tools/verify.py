@@ -12,7 +12,7 @@ import quran, dorar, hadeethenc
 
 SAME = {"AYAH": 99.5, "MATN": 97}   # >= SAME: orthographic only -> مطابق. Quran wording is fixed, so near-exact for ayat
 NEAR = 80                     # [NEAR, SAME): wording differs -> لفظ مختلف ; below: لم نجده. Tuned on dev (eval/results.md)
-CANONICAL = ["صحيح البخاري", "صحيح مسلم", "سنن أبي داود", "سنن الترمذي", "سنن النسائي", "سنن ابن ماجه", "مسند أحمد"]
+CANONICAL = ["متفق عليه", "صحيح البخاري", "صحيح مسلم", "سنن أبي داود", "سنن الترمذي", "سنن النسائي", "سنن ابن ماجه", "مسند أحمد"]
 
 def best_window(span, text):
     """Best-matching run of words in `text` with about as many words as `span`. -> (score, window_text)"""

@@ -9,7 +9,8 @@ import modal
 BASE = "ALLaM-AI/ALLaM-7B-Instruct-preview"
 OUT = "muhaqiq/muhaqiq-allam-restorer"
 image = (modal.Image.debian_slim(python_version="3.11")
-         .pip_install("torch", "transformers", "peft", "trl", "bitsandbytes", "datasets", "accelerate", "huggingface_hub"))
+         .pip_install("torch", "transformers", "peft", "trl", "bitsandbytes", "datasets", "accelerate", "huggingface_hub",
+                      "sentencepiece", "tiktoken", "protobuf"))        # ALLaM tokenizer is SentencePiece
 app = modal.App("muhaqiq-restorer-train", image=image)
 
 @app.function(gpu="A10G", timeout=4 * 3600, secrets=[modal.Secret.from_name("huggingface")])
@@ -29,7 +30,7 @@ def train(smoke: bool = False):
     model = prepare_model_for_kbit_training(model)
 
     args = SFTConfig(output_dir="/tmp/restorer", num_train_epochs=1, per_device_train_batch_size=4, gradient_accumulation_steps=4,
-                     learning_rate=2e-4, lr_scheduler_type="cosine", warmup_ratio=0.03, bf16=True, logging_steps=10,
+                     learning_rate=2e-4, lr_scheduler_type="cosine", warmup_steps=40, bf16=True, logging_steps=10,
                      save_strategy="steps", save_steps=200, max_length=512, report_to="none",
                      push_to_hub=not smoke, hub_model_id=OUT, hub_private_repo=False)
     lora = LoraConfig(r=16, lora_alpha=32, lora_dropout=0.05, target_modules="all-linear", task_type="CAUSAL_LM")
