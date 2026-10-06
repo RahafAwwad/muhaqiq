@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>مُحقِّق - تحقّق من الآيات والأحاديث</title>
+<meta name="description" content="مُحقِّق يكتشف الآيات والأحاديث في أي نص ويتحقق منها في المصادر المعتمدة.">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="render.js"></script>
+<style>
+/* Brand: same palette as the logo (brand/muhaqiq-mark.svg) */
+:root{--navy:#10213F;--navy2:#1B3157;--cream:#F7F5EF;--teal:#1F8A72;--mint:#5FD3B5;--slate:#5A6B85;--line:#E3DED2;
+  --mq-sans:"IBM Plex Sans Arabic",Tahoma,sans-serif;--mq-serif:Amiri,"Traditional Arabic",serif}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--cream);color:var(--navy);font:16px/1.7 var(--mq-sans)}
+a{color:var(--teal)}
+.wrap{max-width:1080px;margin:0 auto;padding:0 16px}
+
+/* header + hero */
+.top{background:var(--navy);color:var(--cream)}
+.nav{display:flex;align-items:center;gap:12px;padding:14px 0}
+.brand{display:flex;align-items:center;gap:10px;color:var(--cream);text-decoration:none}
+.brand img{width:42px;height:42px}
+.brand b{font:700 28px/1 var(--mq-serif)}
+.brand small{display:block;font-size:11px;color:#8FA3BF;letter-spacing:.5px}
+.nav nav{margin-inline-start:auto;display:flex;gap:18px;flex-wrap:wrap}
+.nav nav a{color:#C9D4E5;text-decoration:none;font-size:14px}.nav nav a:hover{color:var(--mint)}
+.hero{display:grid;grid-template-columns:1.3fr 1fr;gap:24px;align-items:center;padding:28px 0 64px}
+.hero h1{font:700 44px/1.35 var(--mq-serif);margin:0 0 10px}
+.hero h1 em{font-style:normal;color:var(--mint)}
+.hero p{color:#C9D4E5;margin:0 0 6px;max-width:560px}
+.hero .mark{justify-self:center;width:min(260px,70%);filter:drop-shadow(0 10px 30px rgba(0,0,0,.25))}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.legend span{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.07);border-radius:999px;padding:3px 12px;font-size:13px}
+.legend i{width:10px;height:10px;border-radius:50%;display:inline-block}
+
+/* tool */
+.tool{background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:0 12px 40px rgba(16,33,63,.10);padding:20px;margin-top:-40px;position:relative}
+.tool label{font-weight:600;font-size:14px;display:block;margin-bottom:6px}
+textarea,input[type=text]{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;font:18px/1.9 var(--mq-serif);color:var(--navy);background:#FDFCF9;resize:vertical}
+input[type=text]{font:15px/1.6 var(--mq-sans)}
+textarea:focus,input:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(31,138,114,.15)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:12px}
+.btn{border:0;border-radius:10px;padding:11px 22px;font:600 16px var(--mq-sans);cursor:pointer;background:var(--teal);color:#fff}
+.btn:hover{background:#18705D}.btn:disabled{opacity:.6;cursor:wait}
+.btn.ghost{background:transparent;color:var(--navy);border:1.5px solid var(--line);padding:9px 14px;font-size:14px}
+.btn.ghost:hover{border-color:var(--teal);color:var(--teal)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px dashed #B9C4D6;background:none;border-radius:999px;padding:4px 12px;font:13px var(--mq-sans);color:var(--slate);cursor:pointer}
+.chip:hover{border-color:var(--teal);color:var(--teal)}
+.seg{display:inline-flex;background:#EEE9DD;border-radius:10px;padding:3px;margin-inline-start:auto}
+.seg button{border:0;background:none;border-radius:8px;padding:6px 14px;font:600 14px var(--mq-sans);color:var(--slate);cursor:pointer}
+.seg button.on{background:var(--navy);color:var(--cream)}
+.hint{font-size:13px;color:var(--slate)}
+.single{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:var(--navy);cursor:pointer;margin:0}
+.single input{width:16px;height:16px;accent-color:var(--teal)}
+.disclaimer{background:#FBF0DC;color:#7A5212;border-radius:10px;padding:8px 12px;font-size:13px;margin:0 0 12px}
+.file{position:relative;overflow:hidden}.file input{position:absolute;inset:0;opacity:0;cursor:pointer}
+
+/* status */
+.status{display:none;align-items:center;gap:12px;margin-top:16px;padding:12px 14px;background:#EEF6F3;border-radius:12px;color:#14624F}
+.status.on{display:flex}
+.spin{width:22px;height:22px;border:3px solid #BFE3D8;border-top-color:var(--teal);border-radius:50%;animation:sp 1s linear infinite;flex:none}
+@keyframes sp{to{transform:rotate(360deg)}}
+.err{background:#F8E4E1;color:#8A2F27}
+
+/* results */
+#results{display:none;margin:28px 0}
+#results.on{display:block}
+.summary{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 16px;min-width:120px;border-top:4px solid var(--c)}
+.stat b{font-size:26px;display:block;line-height:1.2}.stat span{font-size:13px;color:var(--slate)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+.panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px}
+.panel h3{margin:0 0 10px;font:700 20px var(--mq-serif)}
+.annot{font:19px/2.1 var(--mq-serif);white-space:pre-wrap;max-height:640px;overflow:auto}
+.annot mark.flash{outline:3px solid var(--mint)}
+.cards{max-height:760px;overflow:auto;padding-inline-end:4px}
+.mq-card.flash{box-shadow:0 0 0 3px var(--mint)}
+.empty{color:var(--slate);text-align:center;padding:24px}
+.related{margin-top:20px}
+.related ul{list-style:none;margin:0;padding:0}
+.related li{padding:10px 0;border-bottom:1px solid #EEE9DD}
+.related li a{font-weight:600;text-decoration:none}
+.related li p{margin:2px 0 0;font-size:14px;color:var(--slate)}
+.refer{background:#FBF0DC;border-radius:12px;padding:14px 16px}
+.level{display:inline-block;background:var(--navy);color:var(--cream);border-radius:6px;padding:0 8px;font-size:13px;margin-inline-start:6px}
+.tools-row{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 0}
+.disclosure{margin-top:14px;font-size:13px;color:var(--slate);border-top:1px dashed var(--line);padding-top:10px}
+
+/* "learn more" band: cool slate background, separate from the tool and its report */
+.more{background:#E6ECF4;border-top:1px solid #D3DCE8;margin-top:56px;padding:8px 0 40px}
+.more summary{list-style:none;cursor:pointer;display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;padding:22px 0}
+.more summary::-webkit-details-marker{display:none}
+.more-t{font:700 26px var(--mq-serif)}
+.more-s{font-size:14px;color:var(--slate)}
+.more-i{margin-inline-start:auto;width:36px;height:36px;border-radius:50%;background:var(--navy);color:var(--mint);display:grid;place-items:center;font-size:20px;transition:transform .2s}
+.more details[open] .more-i{transform:rotate(180deg)}
+.more section.info{padding:18px 0 8px}
+.more section.info h2{font-size:24px}
+/* sections */
+section.info{padding:56px 0 8px}
+section.info h2{font:700 30px var(--mq-serif);margin:0 0 18px}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.step{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px}
+.step .n{width:34px;height:34px;border-radius:10px;background:var(--navy);color:var(--mint);display:grid;place-items:center;font-weight:700;margin-bottom:8px}
+.step h3{margin:0 0 4px;font-size:17px}.step p{margin:0;font-size:14px;color:var(--slate)}
+.step .ai{display:inline-block;margin-top:8px;font-size:12px;background:#E3F3EE;color:#14624F;border-radius:6px;padding:1px 8px}
+.step .noai{background:#EEE9DD;color:var(--slate)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.box{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px}
+.box h3{margin:0 0 8px}
+.box ol{margin:0;padding-inline-start:20px}
+pre{direction:ltr;text-align:left;background:var(--navy);color:#DCE6F5;border-radius:10px;padding:12px;overflow:auto;font-size:13px;line-height:1.5}
+footer.site{background:var(--navy);color:#C9D4E5;margin-top:0;padding:28px 0;font-size:14px}
+footer.site .wrap{display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+footer.site a{color:var(--mint)}
+
+@media (max-width:860px){
+  .hero{grid-template-columns:1fr;padding-bottom:56px}.hero .mark{display:none}.hero h1{font-size:34px}
+  .grid,.two{grid-template-columns:1fr}.steps{grid-template-columns:1fr 1fr}
+  .seg{margin-inline-start:0}.nav nav{display:none}
+}
+@media (max-width:520px){.steps{grid-template-columns:1fr}.tool{padding:14px}}
+@media print{.top,.tool,.more,footer.site,.tools-row,.mq-ask{display:none!important}.cards,.annot{max-height:none}.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="wrap">
+    <div class="nav">
+      <a class="brand" href="#"><img src="icon.svg" alt=""><span><b>مُحقِّق</b><small>MUHAQIQ</small></span></a>
+      <nav><a href="#tool">الأداة</a><a href="#how">كيف يعمل</a><a href="#extension">إضافة المتصفح</a><a href="#api">API</a><a href="https://github.com/RahafAwwad/muhaqiq" target="_blank" rel="noopener">GitHub</a></nav>
+    </div>
+    <div class="hero">
+      <div>
+        <h1>قبل أن تنشر الآية أو الحديث… <em>تحقّق منه</em></h1>
+        <p>الصق إجابة روبوت محادثة أو تغريدة أو مقالًا، أو ارفع ملفًا. يكتشف مُحقِّق الآيات والأحاديث ويقارنها حرفيًّا بالمصادر المعتمدة، ويعرض المصدر وأحكام المحدّثين والمراجع.</p>
+        <div class="legend">
+          <span><i style="background:#1F8A72"></i>مطابق</span><span><i style="background:#B7791F"></i>لفظ مختلف</span>
+          <span><i style="background:#B4443A"></i>لم نجده</span><span><i style="background:#4C5FA8"></i>يحتاج مراجعة</span>
+        </div>
+      </div>
+      <img class="mark" src="mark.svg" alt="شعار مُحقِّق">
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <div class="tool" id="tool">
+    <label for="text">النص المراد فحصه</label>
+    <textarea id="text" rows="7" placeholder="الصق هنا نصًّا فيه آيات أو أحاديث…"></textarea>
+    <div class="row">
+      <span class="hint">أمثلة:</span>
+      <div class="chips" id="examples"></div>
+    </div>
+    <label for="q" style="margin-top:14px">سؤالك (اختياري) — لنقترح مصادر موثوقة ذات صلة</label>
+    <input type="text" id="q" placeholder="مثال: ما حكم قتل الضفدع؟">
+    <div class="row">
+      <button class="btn" id="go">تحقّق</button>
+      <span class="btn ghost file">رفع ملف (TXT · DOCX)<input type="file" id="file" accept=".txt,.md,.docx"></span>
+      <button class="btn ghost" id="clear">مسح</button>
+      <label class="single" title="لا يبحث عن الاقتباسات داخل النص: يُعامَل النص كله على أنه آية أو حديث واحد"><input type="checkbox" id="single"> دليل واحد</label>
+      <div class="seg" role="group" aria-label="مستوى التفاصيل">
+        <button data-mode="general" class="on">عام</button><button data-mode="expert">متخصص</button>
+      </div>
+    </div>
+    <div class="status" id="status"><div class="spin"></div><div id="statusText"></div></div>
+  </div>
+
+  <div id="results">
+    <p class="disclaimer" id="disclaimer"></p>
+    <div class="summary" id="summary"></div>
+    <div class="grid">
+      <div class="panel"><h3>النص بعد الفحص</h3><div class="annot" id="annot"></div></div>
+      <div class="panel"><h3>النتائج</h3><div class="cards" id="cards"></div></div>
+    </div>
+    <div class="tools-row">
+      <button class="btn ghost" id="csv">تصدير CSV</button>
+      <button class="btn ghost" id="print">طباعة / PDF</button>
+      <button class="btn ghost" id="copy">نسخ التقرير</button>
+    </div>
+    <div class="panel related" id="related" hidden></div>
+    <p class="disclosure" id="disclosure"></p>
+  </div>
+
+</main>
+
+<section class="more" id="more">
+  <div class="wrap">
+    <details id="moreBox">
+      <summary><span class="more-t">اعرف المزيد عن مُحقِّق</span><span class="more-s">كيف يعمل · إضافة المتصفح · الواجهة البرمجية</span><span class="more-i" aria-hidden="true">⌄</span></summary>
+  <section class="info" id="how">
+    <h2>كيف يعمل</h2>
+    <div class="steps">
+      <div class="step"><div class="n">١</div><h3>اكتشاف</h3><p>نموذج مُدرَّب يحدد الآيات والمتون والأسانيد والمصادر المذكورة.</p><span class="ai">ذكاء اصطناعي · F1 ‎0.96</span></div>
+      <div class="step"><div class="n">٢</div><h3>تحقق حرفي</h3><p>مقارنة بنص المصحف (quran.com) والدرر السنية وموسوعة الأحاديث بعد توحيد الرسم والهمزات والتشكيل.</p><span class="ai noai">بلا ذكاء اصطناعي</span></div>
+<div class="step">
+  <div class="n">٣</div>
+  <h3>استدراك النص</h3>
+  <p>إذا لم نجد النص، يقترح وكيلنا الذكي اللفظ المحتمل، ثم نبحث عنه. لا يُعرض اقتراح لم يؤكده المصدر.</p>
+  <span class="ai">وكيل مُحقِّق الذكي · مُتحقَّق منه</span></div>
+      <div class="step"><div class="n">٤</div><h3>إرشاد</h3><p>للأسئلة: أقرب الإجابات من المواقع المعتمدة فقط، ولا نصف مسألة بأنها خلافية إلا إذا نصّ عليه المصدر، وتُحال المسائل الشخصية إلى أهل العلم.</p><span class="ai noai">قواعد + بحث</span></div>
+    </div>
+  </section>
+
+  <section class="info" id="extension">
+    <h2>إضافة المتصفح</h2>
+    <div class="two">
+      <div class="box">
+        <h3>تلوين الاقتباسات أينما قرأتها</h3>
+        <p>تعمل تلقائيًّا في ChatGPT وGemini وX، وفي أي صفحة بزر «افحص هذه الصفحة» أو بتحديد نص ثم «تحقّق بمُحقِّق» من القائمة. انقر على أي اقتباس ملوّن لترى المصدر والحكم.</p>
+      </div>
+      <div class="box">
+        <h3>التثبيت (وضع المطوّر)</h3>
+        <ol>
+          <li>نزّل المستودع من <a href="https://github.com/RahafAwwad/muhaqiq" target="_blank" rel="noopener">GitHub</a>.</li>
+          <li>افتح <code>chrome://extensions</code> وفعّل «وضع المطوّر».</li>
+          <li>«تحميل إضافة غير مضغوطة» ← اختر مجلد <code>extension</code>.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="info" id="api">
+    <h2>واجهة برمجية</h2>
+    <div class="box">
+      <p>نقطة واحدة لكل المنصات. التوثيق الكامل في <a href="https://github.com/RahafAwwad/muhaqiq/blob/main/api/README.md" target="_blank" rel="noopener">api/README.md</a>.</p>
+<pre>curl -X POST https://rahafawwad--muhaqiq-span-detector-web.modal.run/verify \
+  -H 'Content-Type: application/json' \
+  -d '{"text":"قال النبي ﷺ: إنما الأعمال بالنيات. رواه الترمذي", "question":"..."}'</pre>
+    </div>
+  </section>
+    </details>
+  </div>
+</section>
+
+<footer class="site">
+  <div class="wrap">
+    <span> 2026 - مُحقِّق </span>
+    <span>وكيل ذكي: الأحكام من المصادر لا من النموذج. لا نحفظ النصوص المُرسلة.</span>
+  </div>
+</footer>
+
+<script>
+// Page logic. Rendering of one citation lives in render.js (shared with the extension).
+// ?api=<base url> tests against another server (e.g. the temporary `modal serve` URL) without editing this file
+const API = (new URLSearchParams(location.search).get("api") || "https://rahafawwad--muhaqiq-span-detector-web.modal.run").replace(/\/$/, "") + "/verify";
+const CHUNK = 1500, MAX = 20000;                     // long texts are sent in paragraph chunks (each call stays well under the timeout)
+const $ = id => document.getElementById(id);
+document.head.insertAdjacentHTML("beforeend", `<style>${MQ.CSS}</style>`);
+
+const EXAMPLES = [
+  { name: "مصدر خاطئ", text: "قال رسول الله ﷺ: «خيركم من تعلم القرآن وعلمه». رواه مسلم.\nوقال تعالى: ﴿وَمَا خَلَقْتُ الْجِنَّ وَالْإِنسَ إِلَّا لِيَعْبُدُونِ﴾ [البقرة: 56]" },
+  { name: "لفظ مختلف", text: "وفي الحديث: «إنما الأعمال بالنية، وإنما لكل امرئ ما قصد»، وفي الحديث الآخر: «إن الله لا ينظر إلى أجسادكم ولكن ينظر إلى قلوبكم»." },
+  { name: "حديث مشهور لا يصح", text: "ومما يُستشهد به في فضل العلم قوله ﷺ: «اطلبوا العلم ولو بالصين»، وقوله: «قل هو الحلال والحرام»." },
+  { name: "سؤال", text: "سُئل عن قتل الضفدع فقيل: ورد النهي عن قتل الضفدع، فعن عبد الرحمن بن عثمان أن طبيبًا سأل النبي ﷺ عن ضفدع يجعلها في دواء فنهاه النبي ﷺ عن قتلها. رواه أبو داود.", q: "ما حكم قتل الضفدع؟" },
+];
+$("examples").innerHTML = EXAMPLES.map((e, i) => `<button class="chip" data-ex="${i}">${e.name}</button>`).join("");
+$("examples").onclick = e => { const x = EXAMPLES[e.target.dataset.ex]; if (x) { $("text").value = x.text; $("q").value = x.q || ""; } };
+
+let mode = "general", last = null;                   // last = {text, data}
+document.querySelector(".seg").onclick = e => {
+  if (!e.target.dataset.mode) return;
+  mode = e.target.dataset.mode;
+  document.querySelectorAll(".seg button").forEach(b => b.classList.toggle("on", b === e.target));
+  if (last) render(last.text, last.data);
+};
+
+function status(msg, isErr) {
+  $("status").classList.toggle("on", !!msg); $("status").classList.toggle("err", !!isErr);
+  $("status").querySelector(".spin").style.display = isErr ? "none" : "";
+  $("statusText").textContent = msg || "";
+}
+
+// split long text at paragraph / sentence ends, keeping each piece's offset
+function chunks(text) {
+  const out = []; let start = 0;
+  while (start < text.length) {
+    let end = Math.min(start + CHUNK, text.length);
+    if (end < text.length) {
+      const cut = Math.max(text.lastIndexOf("\n", end), text.lastIndexOf(".", end), text.lastIndexOf("۔", end));
+      if (cut > start + 200) end = cut + 1;
+    }
+    out.push({ start, text: text.slice(start, end) }); start = end;
+  }
+  return out;
+}
+
+async function call(body) {
+  const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 180000);
+  try {
+    const r = await fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), signal: ctl.signal });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    return await r.json();
+  } finally { clearTimeout(t); }
+}
+
+async function verify() {
+  const text = $("text").value.trim(), q = $("q").value.trim();
+  if (!text) { status("الصق نصًّا أولًا.", true); return; }
+  if (text.length > MAX) { status(`النص طويل (${MQ.toAr(text.length)} حرف). الحد ${MQ.toAr(MAX)} حرف؛ قسّمه أو افحص جزءًا منه.`, true); return; }
+    const single = $("single").checked;
+  if (single && text.length > 2000) { status("وضع «دليل واحد» لنص قصير: آية أو حديث واحد. ألغِ التحديد لفحص نص كامل.", true); return; }
+  $("go").disabled = true;
+  const parts = single ? [{ start: 0, text }] : chunks(text), merged = { summary: {}, citations: [], attribution_issues: 0 };
+  const slow = setTimeout(() => status("يتم تشغيل النماذج بعد فترة خمول — قد يستغرق ذلك حتى دقيقة ونصف في أول طلب…"), 12000);
+  try {
+    for (const [k, p] of parts.entries()) {
+      status(parts.length > 1 ? `نفحص الجزء ${MQ.toAr(k + 1)} من ${MQ.toAr(parts.length)}…` : "نكتشف الاقتباسات ونبحث عنها في المصادر…");
+      const body = { text: p.text }; if (single) body.single = true; if (k === 0 && q) body.question = q;
+      const d = await call(body);
+      d.citations.forEach(c => { c.start += p.start; c.end += p.start; });
+      merged.citations.push(...d.citations);
+      for (const [v, n] of Object.entries(d.summary)) merged.summary[v] = (merged.summary[v] || 0) + n;
+      merged.attribution_issues += d.attribution_issues || 0;
+      merged.disclosure = d.disclosure; if (d.related) merged.related = d.related;
+    }
+  } catch (e) {
+    status(e.name === "AbortError" ? "انتهت مهلة الطلب. جرّب مرة أخرى؛ الطلب الثاني أسرع." : "تعذّر الاتصال بالخادم (" + e.message + "). جرّب بعد قليل.", true);
+    return;
+  } finally { clearTimeout(slow); $("go").disabled = false; }
+  try {                                                // drawing errors are reported as such, not as server errors
+    status(""); last = { text, data: merged }; render(text, merged);
+    $("results").scrollIntoView({ behavior: "smooth" });
+  } catch (e) { console.error(e); status("خطأ في عرض النتائج: " + e.message, true); }
+}
+
+function render(text, d) {
+  const cits = d.citations, colors = { "مطابق": "#1F8A72", "لفظ مختلف": "#B7791F", "لم نجده": "#B4443A", "يحتاج مراجعة": "#4C5FA8" };
+  $("summary").innerHTML = Object.entries(colors).map(([v, c]) => `<div class="stat" style="--c:${c}"><b>${MQ.toAr(d.summary[v] || 0)}</b><span>${v}</span></div>`).join("")
+    + `<div class="stat" style="--c:#10213F"><b>${MQ.toAr(d.attribution_issues || 0)}</b><span>مصدر غير دقيق</span></div>`;
+  $("disclaimer").textContent = MQ.DISCLAIMER;
+  $("annot").innerHTML = MQ.annotate(text, cits);
+  const cards = cits.map((c, i) => MQ.card(c, mode, i)).join("");
+  $("cards").innerHTML = cards || `<p class="empty">لم نجد آيات أو أحاديث في هذا النص.</p>`;
+  renderRelated(d.related);
+  $("disclosure").textContent = d.disclosure || "";
+  $("results").classList.add("on");
+}
+
+function renderRelated(r) {
+  // No level badge and no model-made claims: «خلاف» is shown only when a retrieved fatwa says it, with its link.
+  const box = $("related");
+  if (!r || r.error) { box.hidden = true; return; }
+  box.hidden = false;
+  if (r.refer) {
+    box.innerHTML = `<h3>مصادر ذات صلة</h3><div class="refer"><b>هذه مسألة تتعلق بحالة شخصية.</b><p style="margin:6px 0 0">${MQ.esc(r.note)}</p>
+      <button class="mq-ask" data-askq="1" style="margin-top:10px">اسأل أهل العلم</button></div>`;
+    return;
+  }
+  const d = r.disagreement;
+  box.innerHTML = `<h3>أقرب ما وجدنا في المواقع المعتمدة</h3>
+    <p class="hint" style="margin:0 0 8px">روابط للقراءة، لا حكم من مُحقِّق. اقرأ الفتوى كاملة.</p>
+    ${d ? `<p class="refer">ذكر أحد المصادر أن في المسألة خلافًا («${MQ.esc(d.phrase)}») — <a href="${MQ.esc(d.url)}" target="_blank" rel="noopener">${MQ.esc(d.title)}</a></p>` : ""}
+    ${r.links.length ? `<ul>${r.links.map(l => `<li><a href="${MQ.esc(l.url)}" target="_blank" rel="noopener">${MQ.esc(l.title)}</a><p>${MQ.esc(new URL(l.url).hostname)} — ${MQ.esc(l.snippet)}</p></li>`).join("")}</ul>`
+      : `<div class="refer">${MQ.esc(r.note || "لم نجد إجابة مباشرة في المواقع المعتمدة.")}<br><button class="mq-ask" data-askq="1" style="margin-top:10px">اسأل أهل العلم</button></div>`}`;
+}
+
+// click a mark -> highlight its card, and the reverse; «اسأل أهل العلم» copies a ready question and opens the service
+document.addEventListener("click", async e => {
+  const m = e.target.closest("mark[data-i]"), cardEl = e.target.closest(".mq-card"), ask = e.target.closest("[data-ask],[data-askq]");
+  if (ask && last) {
+    const msg = ask.dataset.askq ? `السلام عليكم ورحمة الله،\n${$("q").value}\nوجزاكم الله خيرًا.` : MQ.askText(last.data.citations[ask.dataset.ask]);
+    try { await navigator.clipboard.writeText(msg); } catch {}
+    status("نسخنا لك نص السؤال — الصقه في صفحة الموقع التي فُتحت."); setTimeout(() => status(""), 5000);
+    window.open(MQ.ASK_URL, "_blank", "noopener"); return;
+  }
+  if (m) flash(document.querySelector(`.mq-card[data-i="${m.dataset.i}"]`));
+  else if (cardEl && !e.target.closest("a,button,summary")) flash(document.querySelector(`mark[data-i="${cardEl.dataset.i}"]`));
+});
+function flash(el) { if (!el) return; el.scrollIntoView({ behavior: "smooth", block: "center" }); el.classList.add("flash"); setTimeout(() => el.classList.remove("flash"), 1600); }
+
+// exports
+function download(name, data, type) { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([data], { type })); a.download = name; a.click(); }
+$("csv").onclick = () => last && download("muhaqiq-report.csv", MQ.csv(last.data.citations), "text/csv;charset=utf-8");
+$("print").onclick = () => window.print();
+$("copy").onclick = async () => {
+  if (!last) return;
+  const lines = last.data.citations.filter(c => c.verdict).map(c => `• ${c.verdict}: «${c.text}» — ${MQ.reason(c)}${(c.source || {}).url ? " " + c.source.url : ""}`);
+  await navigator.clipboard.writeText(["تقرير مُحقِّق", ...lines, "", last.data.disclosure].join("\n"));
+  status("نُسخ التقرير."); setTimeout(() => status(""), 2500);
+};
+
+// files: read in the browser, nothing is uploaded except the extracted text. mammoth loads only when needed. PDF is not supported: Arabic PDFs extract as reversed, broken letters.
+function load(src) { return new Promise((ok, no) => { const s = document.createElement("script"); s.src = src; s.onload = ok; s.onerror = no; document.head.append(s); }); }
+$("file").onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  status("نقرأ الملف…");
+  try {
+    let text;
+    if (/\.pdf$/i.test(f.name)) throw new Error("ملفات PDF العربية لا تُستخرج نصوصها بدقة؛ انسخ النص والصقه، أو احفظه بصيغة DOCX");
+    if (/\.docx$/i.test(f.name)) {               // https://github.com/mwilliamson/mammoth.js#api
+      await load("https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js");
+      text = (await mammoth.extractRawText({ arrayBuffer: await f.arrayBuffer() })).value;
+    } else text = await f.text();
+    $("text").value = text.trim(); $("single").checked = false;     // a file is a full text, not one quote
+    status(`قرأنا ${MQ.toAr(text.length)} حرفًا من «${f.name}». اضغط «تحقّق».`);
+  } catch (err) { status("تعذّرت قراءة الملف: " + err.message, true); }
+  e.target.value = "";
+};
+
+// nav links into the "learn more" band open it first
+document.querySelectorAll('a[href="#how"],a[href="#extension"],a[href="#api"]').forEach(a => a.addEventListener("click", () => { $("moreBox").open = true; }));
+if (["#how", "#extension", "#api", "#more"].includes(location.hash)) $("moreBox").open = true;
+
+$("go").onclick = verify;
+$("clear").onclick = () => { $("text").value = ""; $("q").value = ""; $("results").classList.remove("on"); last = null; status(""); };
+$("text").addEventListener("keydown", e => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) verify(); });
+</script>
+</body>
+</html>

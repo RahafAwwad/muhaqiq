@@ -1,2 +1,7 @@
-mark.mq-AYAH{background:#cdeed9} mark.mq-ISNAD{background:#e0d6f5}
-mark.mq-MATN{background:#d3f0e6}  mark.mq-SOURCE{background:#d6e4f7}
+/* Muhaqiq page marks — colours follow the verdict (same palette as the website and logo) */
+mark.mq{color:inherit;border-radius:3px;padding:0 1px;cursor:pointer;transition:filter .15s}
+mark.mq:hover{filter:brightness(.93)}
+mark.mq-m-ok{background:#D2EEE5 !important;border-bottom:2px solid #1F8A72}
+mark.mq-m-diff{background:#F8E7C4 !important;border-bottom:2px solid #B7791F}
+mark.mq-m-none{background:#F5D6D2 !important;border-bottom:2px solid #B4443A}
+mark.mq-m-review{background:#DCE1F4 !important;border-bottom:2px solid #4C5FA8}

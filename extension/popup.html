@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<style>
+body{margin:0;width:300px;background:#F7F5EF;color:#10213F;font:14px/1.6 "IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif}
+header{display:flex;align-items:center;gap:10px;background:#10213F;color:#F7F5EF;padding:12px 14px}
+header img{width:34px;height:34px}header b{font:700 22px Amiri,"Traditional Arabic",serif;display:block;line-height:1.1}
+header small{color:#8FA3BF;font-size:11px}
+main{padding:12px 14px}
+.btn{width:100%;border:0;border-radius:10px;padding:10px;background:#1F8A72;color:#fff;font:600 15px inherit;font-family:inherit;cursor:pointer}
+.btn:hover{background:#18705D}
+.row{display:flex;align-items:center;justify-content:space-between;margin:12px 0}
+.seg{display:inline-flex;background:#EEE9DD;border-radius:9px;padding:3px}
+.seg button{border:0;background:none;border-radius:7px;padding:4px 12px;font:600 13px inherit;font-family:inherit;color:#5A6B85;cursor:pointer}
+.seg button.on{background:#10213F;color:#F7F5EF}
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;font-size:12px;margin:10px 0}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-inline-end:5px;vertical-align:middle}
+.hint{font-size:12px;color:#5A6B85;margin:6px 0}
+footer{font-size:11px;color:#5A6B85;border-top:1px solid #E3DED2;padding:8px 14px;background:#fff}
+a{color:#1F8A72}
+</style>
+</head>
+<body>
+<header><img src="icons/icon48.png" alt=""><div><b>مُحقِّق</b><small>تحقّق من الآيات والأحاديث</small></div></header>
+<main>
+  <button class="btn" id="scan">افحص هذه الصفحة</button>
+  <p class="hint">أو حدّد نصًّا ثم انقر بالزر الأيمن ← «تحقّق بمُحقِّق».</p>
+  <div class="row"><span>التفاصيل</span><div class="seg"><button data-mode="general">عام</button><button data-mode="expert">متخصص</button></div></div>
+  <div class="row"><label for="auto">تلوين تلقائي في ChatGPT وGemini وX</label><input type="checkbox" id="auto"></div>
+  <div class="legend">
+    <span><i style="background:#1F8A72"></i>مطابق</span><span><i style="background:#B7791F"></i>لفظ مختلف</span>
+    <span><i style="background:#B4443A"></i>لم نجده</span><span><i style="background:#4C5FA8"></i>يحتاج مراجعة</span>
+  </div>
+  <p class="hint"><a href="https://rahafawwad.github.io/muhaqiq/" target="_blank">افتح موقع مُحقِّق</a> لفحص ملف أو نص طويل.</p>
+</main>
+<footer>أداة ذكاء اصطناعي: الأحكام من المصادر لا من النموذج. لا نحفظ النصوص المُرسلة.</footer>
+<script src="popup.js"></script>
+</body>
+</html>

@@ -1,6 +1,9 @@
 """Find ayah/hadith spans in any text.
 pipeline + aggregation_strategy merges B-/I- tokens into whole spans with char offsets:
 https://huggingface.co/docs/transformers/main_classes/pipelines#transformers.TokenClassificationPipeline
+"first" labels each WORD by its first sub-token, so a span never stops or breaks in the middle of a word
+("simple" did, which produced 1-word fragments and dropped last words). Same-label pieces separated only by
+spaces/punctuation are then joined back into one span.
 Long texts are split at paragraph / sentence breaks (BERT takes 512 tokens max), then at spaces if still
 too long, and offsets are shifted back to the original text.
 """
@@ -8,7 +11,7 @@ import re
 from transformers import pipeline
 
 detect = pipeline("token-classification", model="muhaqiq/muhaqiq-span-detector",
-                  aggregation_strategy="simple")
+                  aggregation_strategy="first")
 MAX_TOKENS = 400
 
 def n_tokens(s):
@@ -34,6 +37,18 @@ def chunks(text):
         buf += part
     if buf: yield pos, buf
 
+GAP = re.compile(r"^[\s\W]{0,3}$")          # only spaces / punctuation between two pieces of one quote
+
+def merge_adjacent(spans, text):
+    """[«قال: إن» MATN][«لكل قوم عيدا» MATN] -> one MATN span. Score = the lower of the two (stay cautious)."""
+    out = []
+    for s in sorted(spans, key=lambda x: x["start"]):
+        if out and out[-1]["label"] == s["label"] and GAP.match(text[out[-1]["end"]:s["start"]]):
+            p = out[-1]; p["end"] = s["end"]; p["text"] = text[p["start"]:p["end"]]; p["score"] = min(p["score"], s["score"])
+        else:
+            out.append(dict(s))
+    return out
+
 def find_spans(text):
     out = []
     for off, piece in chunks(text):
@@ -41,7 +56,7 @@ def find_spans(text):
         out += [{"label": s["entity_group"], "start": off + s["start"], "end": off + s["end"],
                  "text": text[off + s["start"]:off + s["end"]], "score": round(float(s["score"]), 3)}
                 for s in detect(piece)]
-    return out
+    return merge_adjacent(out, text)
 
 if __name__ == "__main__":
     text = "قال الله تعالى: ولا تنسوا الفضل بينكم. وقال النبي ﷺ: إنما الأعمال بالنيات."

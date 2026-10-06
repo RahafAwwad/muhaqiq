@@ -11,3 +11,5 @@ data_tok/
 *.bin
 *.safetensors
 .env
+.md
+.sh
