@@ -8,8 +8,10 @@ __pycache__/
 data/
 *.jsonl
 data_tok/
+mds/
 *.bin
 *.safetensors
 .env
 .md
 .sh
+*.md

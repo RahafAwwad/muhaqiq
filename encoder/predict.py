@@ -37,7 +37,7 @@ def chunks(text):
         buf += part
     if buf: yield pos, buf
 
-GAP = re.compile(r"^[\s\W]{0,3}$")          # only spaces / punctuation between two pieces of one quote
+GAP = re.compile(r"^[\s\W]{0,3}$|^\s*(?:\.{2,}|…)\s*$")   # spaces/punctuation, or an ellipsis «...» (words left out)
 
 def merge_adjacent(spans, text):
     """[«قال: إن» MATN][«لكل قوم عيدا» MATN] -> one MATN span. Score = the lower of the two (stay cautious)."""

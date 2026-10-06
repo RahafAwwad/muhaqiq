@@ -22,7 +22,8 @@ def parse(result):
 HEADERS = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) Muhaqiq/0.1 (hadith verification; contact in README)",
            "Accept": "application/json, text/javascript, */*", "Accept-Language": "ar,en;q=0.8", "Referer": "https://dorar.net/hadith"}
 
-def search(text):
+def search(text, failed=None):
+    """failed: optional list; the query is appended to it when dorar could not be reached (not cached -> retried next time)"""
     def go():
         r = None
         try:
@@ -32,7 +33,9 @@ def search(text):
             print(f"dorar unavailable for {text[:30]!r}: {e}; reply starts: {(r.text if r is not None else '')[:120]!r}")
             raise                                                 # not cached, so the next call retries
     try: return cached("dorar:" + text, go)
-    except Exception: return []
+    except Exception:
+        if failed is not None: failed.append(text)
+        return []
 
 if __name__ == "__main__":
     for h in search("إنما الأعمال بالنيات")[:3]:

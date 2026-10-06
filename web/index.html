@@ -32,6 +32,7 @@ a{color:var(--teal)}
 .hero h1{font:700 44px/1.35 var(--mq-serif);margin:0 0 10px}
 .hero h1 em{font-style:normal;color:var(--mint)}
 .hero p{color:#C9D4E5;margin:0 0 6px;max-width:560px}
+.brand-word{color:var(--mint);font-weight:700}
 .hero .mark{justify-self:center;width:min(260px,70%);filter:drop-shadow(0 10px 30px rgba(0,0,0,.25))}
 .legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
 .legend span{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.07);border-radius:999px;padding:3px 12px;font-size:13px}
@@ -55,6 +56,7 @@ textarea:focus,input:focus{outline:none;border-color:var(--teal);box-shadow:0 0 
 .seg button{border:0;background:none;border-radius:8px;padding:6px 14px;font:600 14px var(--mq-sans);color:var(--slate);cursor:pointer}
 .seg button.on{background:var(--navy);color:var(--cream)}
 .hint{font-size:13px;color:var(--slate)}
+.ai-note{font-size:12px;color:var(--slate);margin:10px 0 0;text-align:center}
 .single{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:var(--navy);cursor:pointer;margin:0}
 .single input{width:16px;height:16px;accent-color:var(--teal)}
 .disclaimer{background:#FBF0DC;color:#7A5212;border-radius:10px;padding:8px 12px;font-size:13px;margin:0 0 12px}
@@ -125,7 +127,21 @@ footer.site a{color:var(--mint)}
   .seg{margin-inline-start:0}.nav nav{display:none}
 }
 @media (max-width:520px){.steps{grid-template-columns:1fr}.tool{padding:14px}}
-@media print{.top,.tool,.more,footer.site,.tools-row,.mq-ask{display:none!important}.cards,.annot{max-height:none}.grid{grid-template-columns:1fr}}
+.print-head{display:none}
+@media print{
+  @page{margin:14mm}
+  body{background:#fff}
+  .top,.tool,.more,footer.site,.tools-row,.mq-ask,.mq-card details summary{display:none!important}
+  #results{display:block!important;margin:0}
+  .print-head{display:flex;align-items:center;gap:10px;border-bottom:2px solid var(--navy);padding-bottom:8px;margin-bottom:12px}
+  .print-head img{width:34px;height:34px}.print-head b{font:700 22px var(--mq-serif)}.print-head span{margin-inline-start:auto;font-size:12px;color:var(--slate)}
+  .grid{display:block}
+  .panel{border:0;padding:0;margin-bottom:14px}
+  .cards,.annot{max-height:none!important;overflow:visible!important}
+  .mq-card,.stat,.related li{break-inside:avoid;page-break-inside:avoid}
+  .mq-card details{display:block}.mq-card details>*{display:block}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
 </style>
 </head>
 <body>
@@ -137,8 +153,8 @@ footer.site a{color:var(--mint)}
     </div>
     <div class="hero">
       <div>
-        <h1>قبل أن تنشر الآية أو الحديث… <em>تحقّق منه</em></h1>
-        <p>الصق إجابة روبوت محادثة أو تغريدة أو مقالًا، أو ارفع ملفًا. يكتشف مُحقِّق الآيات والأحاديث ويقارنها حرفيًّا بالمصادر المعتمدة، ويعرض المصدر وأحكام المحدّثين والمراجع.</p>
+        <h1>قبل أن تنشر الآية أو الحديث… <em>تحقّق</em></h1>
+        <p>الصق أي نص أو ارفع ملفًا ليتحقق <span class="brand-word">مُحقِّق</span> من نصوص الآيات والأحاديث، ومطابقتها بمصادرها وأحكامها المعتمدة.</p>
         <div class="legend">
           <span><i style="background:#1F8A72"></i>مطابق</span><span><i style="background:#B7791F"></i>لفظ مختلف</span>
           <span><i style="background:#B4443A"></i>لم نجده</span><span><i style="background:#4C5FA8"></i>يحتاج مراجعة</span>
@@ -168,10 +184,12 @@ footer.site a{color:var(--mint)}
         <button data-mode="general" class="on">عام</button><button data-mode="expert">متخصص</button>
       </div>
     </div>
+    <p class="ai-note">مُحقِّق أداة ذكاء اصطناعي وقد يخطئ؛ راجع المصدر قبل الاعتماد على النتيجة.</p>
     <div class="status" id="status"><div class="spin"></div><div id="statusText"></div></div>
   </div>
 
   <div id="results">
+    <div class="print-head"><img src="icon.svg" alt=""><b>تقرير مُحقِّق</b><span id="printDate"></span></div>
     <p class="disclaimer" id="disclaimer"></p>
     <div class="summary" id="summary"></div>
     <div class="grid">
@@ -196,7 +214,7 @@ footer.site a{color:var(--mint)}
   <section class="info" id="how">
     <h2>كيف يعمل</h2>
     <div class="steps">
-      <div class="step"><div class="n">١</div><h3>اكتشاف</h3><p>نموذج مُدرَّب يحدد الآيات والمتون والأسانيد والمصادر المذكورة.</p><span class="ai">ذكاء اصطناعي · F1 ‎0.96</span></div>
+      <div class="step"><div class="n">١</div><h3>اكتشاف</h3><p>نموذج مُدرَّب يحدد الآيات والمتون والأسانيد والمصادر المذكورة.</p><span class="ai">ذكاء اصطناعي · مُختبَر على بيانات IslamicEval</span></div>
       <div class="step"><div class="n">٢</div><h3>تحقق حرفي</h3><p>مقارنة بنص المصحف (quran.com) والدرر السنية وموسوعة الأحاديث بعد توحيد الرسم والهمزات والتشكيل.</p><span class="ai noai">بلا ذكاء اصطناعي</span></div>
 <div class="step">
   <div class="n">٣</div>
@@ -240,7 +258,7 @@ footer.site a{color:var(--mint)}
 
 <footer class="site">
   <div class="wrap">
-    <span> 2026 - مُحقِّق </span>
+    <span>© ٢٠٢٦ مُحقِّق · جميع الحقوق محفوظة</span>
     <span>وكيل ذكي: الأحكام من المصادر لا من النموذج. لا نحفظ النصوص المُرسلة.</span>
   </div>
 </footer>
@@ -303,7 +321,7 @@ async function verify() {
   const text = $("text").value.trim(), q = $("q").value.trim();
   if (!text) { status("الصق نصًّا أولًا.", true); return; }
   if (text.length > MAX) { status(`النص طويل (${MQ.toAr(text.length)} حرف). الحد ${MQ.toAr(MAX)} حرف؛ قسّمه أو افحص جزءًا منه.`, true); return; }
-    const single = $("single").checked;
+  const single = $("single").checked;
   if (single && text.length > 2000) { status("وضع «دليل واحد» لنص قصير: آية أو حديث واحد. ألغِ التحديد لفحص نص كامل.", true); return; }
   $("go").disabled = true;
   const parts = single ? [{ start: 0, text }] : chunks(text), merged = { summary: {}, citations: [], attribution_issues: 0 };
@@ -377,7 +395,7 @@ function flash(el) { if (!el) return; el.scrollIntoView({ behavior: "smooth", bl
 // exports
 function download(name, data, type) { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([data], { type })); a.download = name; a.click(); }
 $("csv").onclick = () => last && download("muhaqiq-report.csv", MQ.csv(last.data.citations), "text/csv;charset=utf-8");
-$("print").onclick = () => window.print();
+$("print").onclick = () => { $("printDate").textContent = new Date().toLocaleDateString("ar"); window.print(); };
 $("copy").onclick = async () => {
   if (!last) return;
   const lines = last.data.citations.filter(c => c.verdict).map(c => `• ${c.verdict}: «${c.text}» — ${MQ.reason(c)}${(c.source || {}).url ? " " + c.source.url : ""}`);

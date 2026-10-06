@@ -69,8 +69,9 @@ def candidates(text, label, searched):
         return quran.search(text)
     hits = []
     for q in hadith_queries(text):
-        searched.append(("dorar.net", q))
-        hits += dorar.search(q)
+        failed = []
+        hits += dorar.search(q, failed)
+        searched.append(("dorar.net — تعذّر الوصول" if failed else "dorar.net", q))
         if len(hits) >= 10: break
     searched.append(("hadeethenc.com (local index)", text))
     return hits + hadeethenc.search(text)
@@ -116,18 +117,57 @@ def clean_span(text):
     while len(w) > 2 and norm(w[-1]) in {norm(x) for x in TRAILING}: w.pop()
     return " ".join(w)
 
+DORAR_DOWN = "تعذّر الوصول إلى الدرر السنية الآن؛ لم نحكم من بيانات ناقصة — أعد المحاولة بعد قليل."
+GAP = re.compile(r"\s*(?:\.{2,}|…)\s*")                       # «...» / «…» = words left out of the quote
+
+def dorar_failed(searched):
+    return any("تعذّر" in s[0] for s in searched)
+
+def as_in_source(raw, phrase):
+    """the normalised words `phrase` as they are spelled in the source text `raw` («حتي» -> «حتى»)"""
+    want = phrase.split(); words = [w for w in raw.split() if norm(w)]; toks = [norm(w) for w in words]
+    for i in range(len(toks) - len(want) + 1):
+        if toks[i:i + len(want)] == want: return " ".join(words[i:i + len(want)])
+    return phrase
+
+def verify_gapped(text, label):
+    """«…في المحيض ... فإذا تطهرن…»: every part must occur IN ORDER in one source text (an ayah, two adjacent ayat,
+    or one hadith). The source decides; the left-out words are shown. -> result dict or None"""
+    parts = [p for p in GAP.split(text) if len(norm(p).split()) >= 2]
+    if len(parts) < 2: return None
+    searched = []
+    for h in candidates(max(parts, key=len), label, searched):
+        full = norm(h.get("simple") or h["text"]); pos, cuts = 0, []
+        for p in parts:
+            i = full.find(norm(p), pos)
+            if i < 0: break
+            cuts.append((i, i + len(norm(p)))); pos = cuts[-1][1]
+        else:
+            raw = h.get("simple") or h["text"]
+            omitted = [as_in_source(raw, full[a[1]:b[0]].strip()) for a, b in zip(cuts, cuts[1:]) if full[a[1]:b[0]].strip()]
+            return {"verdict": "مطابق", "score": 100, "source": h, "gapped": True, "omitted": omitted,
+                    "note": "اقتباس مع حذف" + (": …[" + "] … [".join(omitted) + "]…" if omitted else ""),
+                    "rulings": rulings([(None, 100, "", h)], label), "translations": translations(label, h), "searched": searched}
+    return None
+
 def verify(text, label, short_rule=True):
     """short_rule=False in «دليل واحد» mode: the user says the whole input is the quote, so a short opening
     like «إنما الأعمال بالنيات» is a real (partial) quote, not detector noise."""
     text = clean_span(text)
     if len(norm(text).replace(" ", "")) < MIN_CHARS:
         return {"verdict": None, "skipped": "مقطع قصير جدًا للتحقق"}
+    if GAP.search(text):
+        r = verify_gapped(text, label)
+        if r: return r
+        text = GAP.sub(" ", text).strip()                      # no source has the parts in order: compare as one text
     searched = []
     scored = []
     for h in candidates(text, label, searched):
         score, window = best_window(text, h.get("simple") or h["text"])
         scored.append((rank_key(h, score), score, window, h))
     if not scored:
+        if dorar_failed(searched):
+            return {"verdict": "يحتاج مراجعة", "score": 0, "note": DORAR_DOWN, "searched": searched}
         return {"verdict": "لم نجده", "score": 0, "searched": searched}
     key, score, window, best = max(scored, key=lambda x: x[0])
     contained = norm(text) in norm(best.get("simple") or best["text"])
@@ -139,6 +179,9 @@ def verify(text, label, short_rule=True):
                 "note": "مقطع قصير من نص أطول؛ لا يكفي للحكم — راجع النص الكامل", "searched": searched}
     if contained or score >= SAME[label]:
         return {"verdict": "مطابق", "score": 100 if contained else round(score, 1), "source": best, **partial(text, best), **extra}
+    if label == "MATN" and dorar_failed(searched):
+        return {"verdict": "يحتاج مراجعة", "score": round(score, 1), "closest": best, "closest_window": window,
+                "note": DORAR_DOWN, "searched": searched}
     if score >= NEAR:
         return {"verdict": "لفظ مختلف", "score": round(score, 1), "source": best, "canonical": window,
                 "diff": diff_words(text, window), **extra}

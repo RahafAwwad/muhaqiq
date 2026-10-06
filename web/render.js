@@ -11,7 +11,7 @@
     "لم نجده":      { cls: "none",   icon: "؟" },
     "يحتاج مراجعة": { cls: "review", icon: "!" },
   };
-  const WEAK = /ضعيف|موضوع|باطل|لا أصل|منكر|كذب|مكذوب|واه|شديد الضعف|لا يصح|لا يثبت/;
+  const WEAK = /ضعيف|موضوع|باطل|لا أصل|منكر|كذب|مكذوب|واه|شديد الضعف|لا يصح|لا يثبت|غير محفوظ|شاذ|متروك|ليس بشيء/;
   const ASK_URL = "https://islamqa.info/ar";   // where «اسأل أهل العلم» sends people; change to any approved fatwa service
 
   // source check («المصدر المذكور»): accept the new API wording and the old «العزو…» wording
