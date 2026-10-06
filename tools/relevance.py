@@ -12,7 +12,10 @@ def score(question, citation):
     """-> {"label": "متصل"|"قد لا يتصل بالسؤال", "score": 0..1 (confidence that it IS relevant)}"""
     global _clf
     if _clf is None: _clf = pipeline("text-classification", model=MODEL, top_k=None)
-    probs = {p["label"]: p["score"] for p in _clf({"text": question, "text_pair": citation}, truncation=True, max_length=256)[0]}
+    out = _clf({"text": question, "text_pair": citation}, truncation=True, max_length=256)
+    if isinstance(out, dict): out = [out]                      # one label only
+    if out and isinstance(out[0], list): out = out[0]          # older transformers: [[...]] for a single pair
+    probs = {p["label"]: p["score"] for p in out}
     rel = probs.get("متصل", probs.get("LABEL_1", 0.0))
     # three states: the model must be confident either way; in between we say so instead of defaulting to "متصل"
     if rel >= CONF:       label, note = "متصل", ""

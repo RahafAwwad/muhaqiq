@@ -96,8 +96,8 @@
     if (c.partial)
       h += `<p class="mq-note">اقتباس جزئي (${toAr(Math.round(c.quoted_fraction * 100))}٪ من النص)${expert ? "" : " — النص الكامل في المصدر"}</p>`;
 
-    if (c.relevance && !c.relevance.error && (expert || c.relevance.label !== "متصل"))   // a doubt is shown in both modes
-      h += `<p class="mq-note mq-rel">الصلة بالسؤال (تجريبي): ${esc(c.relevance.label)}${c.relevance.note ? " — " + esc(c.relevance.note) : ""}</p>`;
+    if (expert && c.relevance && typeof c.relevance.score === "number")      // expert mode only: a number, never a label
+      h += `<p class="mq-note">درجة صلة الدليل بالسؤال: ${toAr(Math.round(c.relevance.score * 100))}٪ <span class="mq-chip mq-chip-warn">تجريبي</span><br><small>نموذج أولي لم يُدرَّب بما يكفي بعد؛ لا تعتمد على هذه الدرجة في الحكم.</small></p>`;
     if (expert && c.repaired)
       h += `<p class="mq-note">وُسِّعت حدود الاقتباس لتطابق المصدر (كان الكشف الآلي قد اقتطع كلمة أو أكثر).</p>`;
     if (expert) {

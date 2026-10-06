@@ -14,3 +14,24 @@ tqdm==4.70.1
 truststore==0.10.4
 typing_extensions==4.16.0
 accelerate
+
+# ML / training
+torch==2.14.1
+transformers==5.18.0
+datasets==5.0.1
+peft
+trl
+scikit-learn
+numpy==2.5.3
+
+# Tools / API
+rapidfuzz==3.14.6
+requests==2.34.2
+fastapi[standard]
+modal==1.6.1
+
+# Used by the Modal images (ALLaM tokenizer, 4-bit loading)
+bitsandbytes
+sentencepiece
+protobuf==7.36.2
+tiktoken
